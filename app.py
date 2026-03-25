@@ -133,5 +133,5 @@ st.markdown("---")
 st.caption("AI-Driven Digital Twin | Live Smart Energy Monitoring 🚀")
 
 # 🔁 AUTO REFRESH (LIVE EFFECT)
-time.sleep(8)
+time.sleep(15)
 st.rerun()
