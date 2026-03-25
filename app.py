@@ -9,21 +9,49 @@ st.set_page_config(page_title="Smart Energy Dashboard", layout="wide")
 st.title("⚡ AI Digital Twin Smart Energy Command Center")
 st.markdown("---")
 
+# 📂 DATA UPLOAD
+st.sidebar.title("📂 Upload Dataset")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Upload Dataset", type=["csv", "xlsx", "xls"]
+)
+
+if uploaded_file is not None:
+    file_name = uploaded_file.name
+
+    if file_name.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+
+    elif file_name.endswith(".xlsx"):
+        df = pd.read_excel(uploaded_file, engine="openpyxl")
+
+    elif file_name.endswith(".xls"):
+        df = pd.read_excel(uploaded_file, engine="xlrd")
+
+    else:
+        st.error("Unsupported file format")
+        st.stop()
+
+else:
+    st.warning("Please upload a dataset")
+    st.stop()
+
+# ✅ REQUIRED COLUMN CHECK
+if 'MW' not in df.columns:
+    st.error("Dataset must contain 'MW' column")
+    st.stop()
+
 # 🔁 SIMULATE LIVE DATA
-@st.cache_data
-def load_data():
-    df = pd.read_csv("final_output.csv")
-    return df
-
-df = load_data()
-
-# Simulate new incoming data (LIVE effect)
 new_row = df.iloc[-1].copy()
+new_row['MW'] += np.random.uniform(-0.5, 0.5)
 
-new_row['MW'] = new_row['MW'] + np.random.uniform(-0.5, 0.5)
-new_row['HZ'] = new_row['HZ'] + np.random.uniform(-0.05, 0.05)
+if 'HZ' in df.columns:
+    new_row['HZ'] += np.random.uniform(-0.05, 0.05)
 
 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+# ✅ LIMIT DATA (PERFORMANCE)
+df = df.tail(50)
 
 # 🔹 DIGITAL TWIN
 df['T1'] = df['MW'] * 0.20
@@ -45,18 +73,22 @@ for t in ['T1','T2','T3','T4','T5']:
     df[t + '_status'] = df[t].apply(check_risk)
 
 # 🔹 METRICS
+avg_load = df['MW'].mean()
+max_load = df['MW'].max()
+min_load = df['MW'].min()
+
 col1, col2, col3 = st.columns(3)
-col1.metric("⚡ Avg Load (MW)", round(df['MW'].mean(), 2))
-col2.metric("🔺 Max Load (MW)", round(df['MW'].max(), 2))
-col3.metric("🔻 Min Load (MW)", round(df['MW'].min(), 2))
+col1.metric("⚡ Avg Load (MW)", round(avg_load, 2))
+col2.metric("🔺 Max Load (MW)", round(max_load, 2))
+col3.metric("🔻 Min Load (MW)", round(min_load, 2))
 
 st.markdown("---")
 
 # 🔹 SYSTEM STATUS
 st.subheader("🚨 Live System Status")
 
-critical_count = (df[['T1_status','T2_status','T3_status','T4_status','T5_status']] == "CRITICAL").sum().sum()
-warning_count = (df[['T1_status','T2_status','T3_status','T4_status','T5_status']] == "WARNING").sum().sum()
+critical_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "CRITICAL").sum().sum()
+warning_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "WARNING").sum().sum()
 
 if critical_count > 5:
     st.error(f"⚠️ CRITICAL: {critical_count} overload events detected!")
@@ -65,8 +97,8 @@ elif warning_count > 5:
 else:
     st.success("✅ System Stable")
 
-# 🔹 LIVE GRAPH
-st.subheader("📊 Live Energy Load")
+# 🔹 GRAPH
+st.subheader("📊 Energy Load")
 st.line_chart(df['MW'])
 
 st.markdown("---")
@@ -77,18 +109,15 @@ st.subheader("⚡ Transformer Monitoring")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.dataframe(df[['T1','T2','T3','T4','T5']].tail())
+    st.dataframe(df[['T1','T2','T3','T4','T5']])
 
 with col2:
-    st.dataframe(df[['T1_status','T2_status','T3_status','T4_status','T5_status']].tail())
+    st.dataframe(df[['T1_status','T2_status','T3_status','T4_status','T5_status']])
 
 st.markdown("---")
 
-# 🔥 AI SCENARIO DETECTION
+# 🔥 AI SCENARIO
 st.subheader("🔥 AI Scenario Detection")
-
-avg_load = df['MW'].mean()
-max_load = df['MW'].max()
 
 if max_load > 4.5:
     st.error("🔥 Heatwave Condition Detected")
@@ -100,7 +129,7 @@ else:
 # 🧠 ANOMALY DETECTION
 st.subheader("🧠 Anomaly Detection")
 
-spikes = df[df['MW'] > (df['MW'].mean() + 2*df['MW'].std())]
+spikes = df[df['MW'] > (avg_load + 2*df['MW'].std())]
 
 if not spikes.empty:
     st.warning(f"⚡ {len(spikes)} abnormal spikes detected")
@@ -118,6 +147,32 @@ elif warning_count > 0:
 else:
     st.write("✔ System stable")
 
+# ⚠️ PROBLEM DETECTION
+st.subheader("⚠️ Problem Detection")
+
+for t in ['T1','T2','T3','T4','T5']:
+    status = df[t + '_status'].iloc[-1]
+
+    if status == "CRITICAL":
+        st.error(f"{t}: Overloaded transformer 🚨")
+    elif status == "WARNING":
+        st.warning(f"{t}: Approaching overload ⚠️")
+    else:
+        st.success(f"{t}: Operating normally ✅")
+
+# 🛠️ SOLUTIONS
+st.subheader("🛠️ Suggested Solutions")
+
+for t in ['T1','T2','T3','T4','T5']:
+    status = df[t + '_status'].iloc[-1]
+
+    if status == "CRITICAL":
+        st.error(f"{t}: Reduce load immediately | Maintenance required")
+    elif status == "WARNING":
+        st.warning(f"{t}: Monitor closely | Balance load")
+    else:
+        st.success(f"{t}: No action needed")
+
 # 🏙️ CONTROL CENTER
 st.subheader("🏙️ Smart City Control Center")
 
@@ -132,6 +187,6 @@ st.markdown("---")
 
 st.caption("AI-Driven Digital Twin | Live Smart Energy Monitoring 🚀")
 
-# 🔁 AUTO REFRESH (LIVE EFFECT)
+# 🔁 AUTO REFRESH
 time.sleep(15)
 st.rerun()
