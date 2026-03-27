@@ -9,11 +9,12 @@ hide_st_style = """
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            .stDeployButton {display:none;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# Premium CSS Styling
+# Clean CSS Styling
 st.markdown("""
 <style>
 /* Main app background */
@@ -96,49 +97,6 @@ st.markdown("""
     box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4);
 }
 
-/* Info card styling */
-.info-card {
-    background: rgba(255,255,255,0.05);
-    padding: 40px 30px;
-    border-radius: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.info-card h3 {
-    color: white;
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-weight: 600;
-    font-size: 24px;
-}
-
-.info-card p {
-    color: #a0a0a0;
-    margin-bottom: 30px;
-    line-height: 1.6;
-}
-
-.feature-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    color: white;
-}
-
-.feature-icon {
-    font-size: 28px;
-    margin-right: 15px;
-    width: 40px;
-    text-align: center;
-}
-
-.feature-text {
-    font-size: 16px;
-}
-
 /* Image container */
 .image-container {
     border-radius: 20px;
@@ -148,13 +106,6 @@ st.markdown("""
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
-
-.image-container img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
 }
 
 /* Alert styling */
@@ -219,27 +170,30 @@ with col2:
 
 # RIGHT SIDE (ADDITIONAL INFO)
 with col3:
-    st.markdown("""
-    <div class="info-card">
-        <h3>Welcome to Smart Energy</h3>
-        <p>Monitor and manage your energy grid with AI-powered insights.</p>
-        
-        <div class="feature-item">
-            <div class="feature-icon">🔒</div>
-            <div class="feature-text">Secure Access</div>
+    # Using Streamlit components instead of raw HTML to avoid code visibility
+    info_card = st.container()
+    with info_card:
+        st.markdown("""
+        <div style="background: rgba(255,255,255,0.05); padding: 40px 30px; border-radius: 20px; height: 100%;">
+            <h3 style="color: white; margin-top: 0; margin-bottom: 20px; font-weight: 600; font-size: 24px;">Welcome to Smart Energy</h3>
+            <p style="color: #a0a0a0; margin-bottom: 30px; line-height: 1.6;">Monitor and manage your energy grid with AI-powered insights.</p>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px; color: white;">
+                <div style="font-size: 28px; margin-right: 15px; width: 40px; text-align: center;">🔒</div>
+                <div style="font-size: 16px;">Secure Access</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px; color: white;">
+                <div style="font-size: 28px; margin-right: 15px; width: 40px; text-align: center;">📊</div>
+                <div style="font-size: 16px;">Real-time Monitoring</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; color: white;">
+                <div style="font-size: 28px; margin-right: 15px; width: 40px; text-align: center;">🤖</div>
+                <div style="font-size: 16px;">AI-Powered Insights</div>
+            </div>
         </div>
-        
-        <div class="feature-item">
-            <div class="feature-icon">📊</div>
-            <div class="feature-text">Real-time Monitoring</div>
-        </div>
-        
-        <div class="feature-item">
-            <div class="feature-icon">🤖</div>
-            <div class="feature-text">AI-Powered Insights</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 # Redirect if logged in
 if st.session_state.get("logged_in"):
