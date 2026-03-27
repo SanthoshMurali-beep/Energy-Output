@@ -19,23 +19,35 @@ def add_bg_from_local(image_file):
     st.markdown(
         f"""
         <style>
-        /* 🌆 Background */
+        /* 🌆 Background (z-index: 0) */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            position: relative;
+            z-index: 0;
         }}
 
-        /* 🔥 BLUR LAYER (BETWEEN BG & CONTENT) */
+        /* 🔥 BLUR LAYER (z-index: 1) - Between background and content */
+        .blur-layer {{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(20, 40, 80, 0.5);
+            z-index: 1;
+        }}
+
+        /* 🧾 CONTENT LAYER (z-index: 2) - Above blur */
         .main .block-container {{
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
-            background: rgba(20, 40, 80, 0.35);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 600px;
-            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            padding-top: 2rem;
         }}
 
         /* 🔮 LOGIN CARD */
@@ -83,7 +95,15 @@ def add_bg_from_local(image_file):
             background: rgba(255,255,255,0.4);
             transform: translateY(-2px);
         }}
+
+        /* Hide streamlit default elements */
+        header, footer {{
+            visibility: hidden;
+        }}
         </style>
+
+        <!-- ✅ BLUR LAYER -->
+        <div class="blur-layer"></div>
         """,
         unsafe_allow_html=True
     )
