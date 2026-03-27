@@ -11,7 +11,7 @@ if st.session_state["logged_in"]:
     st.switch_page("app.py")
     st.stop()
 
-# 🔥 Background + TRUE blur layer
+# 🔥 Background + Proper Blur Layer
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
@@ -19,7 +19,6 @@ def add_bg_from_local(image_file):
     st.markdown(
         f"""
         <style>
-
         /* 🌆 Background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
@@ -28,42 +27,27 @@ def add_bg_from_local(image_file):
             background-repeat: no-repeat;
         }}
 
-        /* 🔥 FULL SCREEN BLUR LAYER (FIXED) */
-        .blur-layer {{
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-
+        /* 🔥 BLUR LAYER (BETWEEN BG & CONTENT) */
+        .main .block-container {{
             backdrop-filter: blur(50px);
             -webkit-backdrop-filter: blur(50px);
-
             background: rgba(20, 40, 80, 0.35);
-
-            z-index: 1; /* IMPORTANT */
-        }}
-
-        /* 🧾 Content wrapper ABOVE blur */
-        .content {{
-            position: relative;
-            z-index: 2;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
         }}
 
         /* 🔮 LOGIN CARD */
         .login-box {{
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(25px);
-
             padding: 45px;
             border-radius: 20px;
-
             border: 1px solid rgba(255,255,255,0.3);
-
             box-shadow:
                 0 10px 40px rgba(0,0,0,0.4),
                 inset 0 1px 0 rgba(255,255,255,0.3);
-
             color: white;
         }}
 
@@ -71,10 +55,8 @@ def add_bg_from_local(image_file):
         .stTextInput > div > div > input {{
             background: rgba(255,255,255,0.3);
             backdrop-filter: blur(20px);
-
             border: 1px solid rgba(255,255,255,0.5);
             border-radius: 12px;
-
             color: white;
         }}
 
@@ -90,13 +72,10 @@ def add_bg_from_local(image_file):
         .stButton button {{
             background: rgba(255,255,255,0.25);
             backdrop-filter: blur(10px);
-
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 12px;
-
             color: white;
             font-weight: 600;
-
             transition: 0.3s;
         }}
 
@@ -104,14 +83,7 @@ def add_bg_from_local(image_file):
             background: rgba(255,255,255,0.4);
             transform: translateY(-2px);
         }}
-
         </style>
-
-        <!-- ✅ BLUR LAYER -->
-        <div class="blur-layer"></div>
-
-        <!-- ✅ CONTENT WRAPPER -->
-        <div class="content">
         """,
         unsafe_allow_html=True
     )
@@ -142,9 +114,6 @@ with col2:
             st.error("Invalid credentials")
 
     st.markdown("</div>", unsafe_allow_html=True)
-
-# close content div
-st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<br>")
 st.caption("⚡ Smart Energy Monitoring System | AI Powered")
