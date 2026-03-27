@@ -1,127 +1,68 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import time
 
-# 🔷 PAGE CONFIG
-st.set_page_config(page_title="Smart Energy AI", layout="wide")
-
-# 🎨 PREMIUM UI CSS
-st.markdown("""
-<style>
-body {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-}
-
-/* Center login box */
-.login-box {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 40px;
-    border-radius: 15px;
-    width: 350px;
-    margin: auto;
-    margin-top: 100px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.5);
-}
-
-/* Inputs */
-input {
-    background-color: #1e1e2f !important;
-    color: white !important;
-    border-radius: 8px !important;
-}
-
-/* Button */
-.stButton>button {
-    width: 100%;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
-    color: white;
-    font-weight: bold;
-}
-
-/* Title */
-.title {
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# 🔐 LOGIN FUNCTION
-def login():
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-
-    st.markdown('<div class="title">⚡ Smart Energy Login</div>', unsafe_allow_html=True)
-
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        if username == "admin" and password == "1234":
-            st.session_state["logged_in"] = True
-            st.success("Login successful ✅")
-            st.rerun()
-        else:
-            st.error("Invalid credentials ❌")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-
-# 🔑 SESSION STATE
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-
-# 🚫 STOP IF NOT LOGGED IN
-if not st.session_state["logged_in"]:
-    login()
+# 🔐 LOGIN CHECK
+if not st.session_state.get("logged_in"):
+    st.warning("🔐 Please login first")
     st.stop()
 
-# 🔷 DASHBOARD STARTS
-st.title("⚡ AI Smart Energy Command Center")
+# Page config
+st.set_page_config(page_title="Smart Energy Dashboard", layout="wide")
+
+st.title("⚡ AI Digital Twin Smart Energy Command Center")
 st.markdown("---")
 
 # 📂 FILE UPLOAD
 st.sidebar.title("📂 Upload Dataset")
 
 uploaded_file = st.sidebar.file_uploader(
-    "Upload CSV or Excel file", type=["csv", "xlsx"]
+    "Upload Dataset", type=["csv", "xlsx"]
 )
 
-# 📥 LOAD DATA
 if uploaded_file is not None:
-    try:
-        if uploaded_file.name.endswith(".csv"):
-            df = pd.read_csv(uploaded_file)
-        else:
-            df = pd.read_excel(uploaded_file, engine="openpyxl")
-    except Exception as e:
-        st.error(f"Error: {e}")
+    file_name = uploaded_file.name
+
+    if file_name.endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+
+    elif file_name.endswith(".xlsx"):
+        df = pd.read_excel(uploaded_file, engine="openpyxl")
+
+    else:
+        st.error("Unsupported file format")
         st.stop()
+
 else:
-    st.warning("Upload dataset to continue")
+    st.warning("Please upload a dataset")
     st.stop()
 
-# ✅ CHECK
+# ✅ REQUIRED COLUMN CHECK
 if 'MW' not in df.columns:
-    st.error("Dataset must contain 'MW'")
+    st.error("Dataset must contain 'MW' column")
     st.stop()
 
-# 🔁 SIMULATION
+# 🔁 SIMULATE LIVE DATA
 new_row = df.iloc[-1].copy()
 new_row['MW'] += np.random.uniform(-0.5, 0.5)
+
+if 'HZ' in df.columns:
+    new_row['HZ'] += np.random.uniform(-0.05, 0.05)
+
 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+# ✅ LIMIT DATA
 df = df.tail(50)
 
-# 🔷 DIGITAL TWIN
+# 🔹 DIGITAL TWIN
 df['T1'] = df['MW'] * 0.20
 df['T2'] = df['MW'] * 0.25
 df['T3'] = df['MW'] * 0.15
 df['T4'] = df['MW'] * 0.20
 df['T5'] = df['MW'] * 0.20
 
-# 🔷 RISK
+# 🔹 AI RISK FUNCTION
 def check_risk(x):
     if x > 1.0:
         return "CRITICAL"
@@ -133,40 +74,115 @@ def check_risk(x):
 for t in ['T1','T2','T3','T4','T5']:
     df[t + '_status'] = df[t].apply(check_risk)
 
-# 📊 METRICS
+# 🔹 METRICS
+avg_load = df['MW'].mean()
+max_load = df['MW'].max()
+min_load = df['MW'].min()
+
 col1, col2, col3 = st.columns(3)
-col1.metric("Avg Load", round(df['MW'].mean(), 2))
-col2.metric("Max Load", round(df['MW'].max(), 2))
-col3.metric("Min Load", round(df['MW'].min(), 2))
+col1.metric("⚡ Avg Load (MW)", round(avg_load, 2))
+col2.metric("🔺 Max Load (MW)", round(max_load, 2))
+col3.metric("🔻 Min Load (MW)", round(min_load, 2))
 
 st.markdown("---")
 
-# 📈 GRAPH
+# 🔹 SYSTEM STATUS
+st.subheader("🚨 Live System Status")
+
+critical_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "CRITICAL").sum().sum()
+warning_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "WARNING").sum().sum()
+
+if critical_count > 5:
+    st.error(f"⚠️ CRITICAL: {critical_count} overload events detected!")
+elif warning_count > 5:
+    st.warning(f"⚡ WARNING: {warning_count} stress events detected")
+else:
+    st.success("✅ System Stable")
+
+# 📊 GRAPH
+st.subheader("📊 Energy Load")
 st.line_chart(df['MW'])
 
-# 🚨 ALERT
-critical = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "CRITICAL").sum().sum()
+st.markdown("---")
 
-if critical > 5:
-    st.error("🚨 HIGH RISK")
-else:
-    st.success("✅ STABLE")
+# ⚡ TRANSFORMER DATA
+st.subheader("⚡ Transformer Monitoring")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.dataframe(df[['T1','T2','T3','T4','T5']])
+
+with col2:
+    st.dataframe(df[['T1_status','T2_status','T3_status','T4_status','T5_status']])
 
 st.markdown("---")
 
-# ⚠️ PROBLEMS + SOLUTIONS
-st.subheader("⚠️ Problems & Solutions")
+# 🔥 AI SCENARIO
+st.subheader("🔥 AI Scenario Detection")
+
+if max_load > 4.5:
+    st.error("🔥 Heatwave Condition Detected")
+elif avg_load > 3.5:
+    st.warning("⚡ Peak Demand Period")
+else:
+    st.success("✅ Normal Condition")
+
+# 🧠 ANOMALY DETECTION
+st.subheader("🧠 Anomaly Detection")
+
+spikes = df[df['MW'] > (avg_load + 2*df['MW'].std())]
+
+if not spikes.empty:
+    st.warning(f"⚡ {len(spikes)} abnormal spikes detected")
+else:
+    st.success("✅ No anomalies")
+
+# ⚠️ PROBLEM DETECTION
+st.subheader("⚠️ Problem Detection")
 
 for t in ['T1','T2','T3','T4','T5']:
     status = df[t + '_status'].iloc[-1]
 
     if status == "CRITICAL":
-        st.error(f"{t}: Overload → Reduce load immediately")
+        st.error(f"{t}: Overloaded 🚨")
     elif status == "WARNING":
-        st.warning(f"{t}: Risk → Monitor closely")
+        st.warning(f"{t}: High load ⚠️")
     else:
-        st.success(f"{t}: Normal")
+        st.success(f"{t}: Normal ✅")
+
+# 🛠️ SOLUTIONS
+st.subheader("🛠️ Suggested Solutions")
+
+for t in ['T1','T2','T3','T4','T5']:
+    status = df[t + '_status'].iloc[-1]
+
+    if status == "CRITICAL":
+        st.error(f"{t}: Reduce load immediately | Maintenance needed")
+    elif status == "WARNING":
+        st.warning(f"{t}: Monitor & balance load")
+    else:
+        st.success(f"{t}: No action needed")
+
+# 🏙️ CONTROL CENTER
+st.subheader("🏙️ Smart Grid Control Center")
+
+if critical_count > 0:
+    st.error("🚨 Grid Risk: HIGH")
+elif warning_count > 0:
+    st.warning("⚡ Grid Risk: MEDIUM")
+else:
+    st.success("✅ Grid Risk: LOW")
+
+# 🔓 LOGOUT BUTTON
+st.sidebar.markdown("---")
+if st.sidebar.button("Logout"):
+    st.session_state["logged_in"] = False
+    st.rerun()
 
 st.markdown("---")
+st.caption("AI-Driven Digital Twin | Smart Energy Monitoring 🚀")
 
-st.caption("🚀 Premium Smart Energy System")
+# 🔁 AUTO REFRESH
+time.sleep(10)
+st.rerun()
