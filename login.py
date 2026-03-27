@@ -12,7 +12,7 @@ if st.session_state["logged_in"]:
     st.switch_page("app.py")
     st.stop()
 
-# 🔥 FUNCTION: Add background + premium glass UI
+# 🔥 FUNCTION: Background + Strong Glass UI
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
@@ -29,66 +29,64 @@ def add_bg_from_local(image_file):
             background-repeat: no-repeat;
         }}
 
-        /* 🔮 MAIN GLASS CARD */
+        /* 🔮 MAIN GLASS CARD (STRONG BLUR) */
         .login-box {{
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(25px) saturate(160%);
-            -webkit-backdrop-filter: blur(25px) saturate(160%);
+            background: rgba(30, 60, 120, 0.5);  /* almost solid */
 
-            border-radius: 20px;
-            padding: 40px;
+            backdrop-filter: blur(55px) saturate(180%);
+            -webkit-backdrop-filter: blur(55px) saturate(180%);
 
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 45px;
+            border-radius: 22px;
+
+            border: 1px solid rgba(255, 255, 255, 0.35);
 
             box-shadow: 
-                0 8px 32px rgba(0,0,0,0.25),
-                inset 0 1px 0 rgba(255,255,255,0.3);
+                0 12px 45px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.4);
 
             color: white;
         }}
 
         /* ✨ INPUT FIELDS */
         .stTextInput > div > div > input {{
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
 
-            border: 1px solid rgba(255,255,255,0.35);
-            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 12px;
 
             padding: 12px;
             color: #ffffff;
             font-weight: 500;
-
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }}
 
-        /* ✨ INPUT FOCUS EFFECT */
+        /* ✨ INPUT FOCUS */
         .stTextInput > div > div > input:focus {{
             outline: none;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.7);
             box-shadow: 
-                0 0 0 2px rgba(255,255,255,0.2),
-                inset 0 1px 2px rgba(0,0,0,0.1);
+                0 0 0 2px rgba(255,255,255,0.25);
         }}
 
         /* 👁 Placeholder */
         .stTextInput input::placeholder {{
-            color: rgba(255,255,255,0.85);
+            color: rgba(255,255,255,0.9);
         }}
 
-        /* fix password icon background */
+        /* fix password icon bg */
         .stTextInput div[data-baseweb="input"] {{
             background: transparent;
         }}
 
         /* 🚀 BUTTON */
         .stButton button {{
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(15px);
 
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 12px;
 
             color: white;
             font-weight: 600;
@@ -99,8 +97,8 @@ def add_bg_from_local(image_file):
         }}
 
         .stButton button:hover {{
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
+            background: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
         }}
 
         </style>
@@ -108,10 +106,10 @@ def add_bg_from_local(image_file):
         unsafe_allow_html=True
     )
 
-# 📸 Add background image
+# 📸 Add background
 add_bg_from_local("background.jpg")
 
-# 🧾 Layout spacing
+# 🧾 Layout
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([1, 2, 1])
