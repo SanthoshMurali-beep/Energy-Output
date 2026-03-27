@@ -11,7 +11,7 @@ if st.session_state["logged_in"]:
     st.switch_page("app.py")
     st.stop()
 
-# 🔥 Background + FULL GLASS AREA
+# 🔥 Background + TRUE blur layer
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
@@ -28,27 +28,32 @@ def add_bg_from_local(image_file):
             background-repeat: no-repeat;
         }}
 
-        /* 🔥 FULL GLASS AREA (THIS IS THE KEY) */
-        .glass-area {{
+        /* 🔥 FULL SCREEN BLUR LAYER (FIXED) */
+        .blur-layer {{
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
 
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
 
             background: rgba(20, 40, 80, 0.35);
 
-            z-index: -1;
+            z-index: 1; /* IMPORTANT */
+        }}
+
+        /* 🧾 Content wrapper ABOVE blur */
+        .content {{
+            position: relative;
+            z-index: 2;
         }}
 
         /* 🔮 LOGIN CARD */
         .login-box {{
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
 
             padding: 45px;
             border-radius: 20px;
@@ -102,7 +107,11 @@ def add_bg_from_local(image_file):
 
         </style>
 
-        <div class="glass-area"></div>
+        <!-- ✅ BLUR LAYER -->
+        <div class="blur-layer"></div>
+
+        <!-- ✅ CONTENT WRAPPER -->
+        <div class="content">
         """,
         unsafe_allow_html=True
     )
@@ -133,6 +142,9 @@ with col2:
             st.error("Invalid credentials")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+# close content div
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<br>")
 st.caption("⚡ Smart Energy Monitoring System | AI Powered")
