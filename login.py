@@ -19,7 +19,6 @@ def add_bg_from_local(image_file):
     st.markdown(
         f"""
         <style>
-
         /* 🌆 Background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
@@ -37,17 +36,14 @@ def add_bg_from_local(image_file):
             left: 0;
             width: 100%;
             height: 100%;
-
             backdrop-filter: blur(35px);
             -webkit-backdrop-filter: blur(35px);
-
             background: rgba(20, 40, 80, 0.25);
-
             z-index: 1;
         }}
 
         /* 🧾 CONTENT ABOVE BLUR */
-        .content {{
+        .main > div {{
             position: relative;
             z-index: 2;
         }}
@@ -56,16 +52,12 @@ def add_bg_from_local(image_file):
         .login-box {{
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(25px);
-
             padding: 45px;
             border-radius: 20px;
-
             border: 1px solid rgba(255,255,255,0.25);
-
             box-shadow:
                 0 10px 40px rgba(0,0,0,0.4),
                 inset 0 1px 0 rgba(255,255,255,0.2);
-
             color: white;
         }}
 
@@ -73,10 +65,8 @@ def add_bg_from_local(image_file):
         .stTextInput > div > div > input {{
             background: rgba(255,255,255,0.25);
             backdrop-filter: blur(15px);
-
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 12px;
-
             color: white;
         }}
 
@@ -92,13 +82,10 @@ def add_bg_from_local(image_file):
         .stButton button {{
             background: rgba(255,255,255,0.25);
             backdrop-filter: blur(10px);
-
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 12px;
-
             color: white;
             font-weight: 600;
-
             transition: 0.3s;
         }}
 
@@ -106,14 +93,10 @@ def add_bg_from_local(image_file):
             background: rgba(255,255,255,0.4);
             transform: translateY(-2px);
         }}
-
         </style>
 
         <!-- ✅ BLUR LAYER -->
         <div class="blur-layer"></div>
-
-        <!-- ✅ CONTENT -->
-        <div class="content">
         """,
         unsafe_allow_html=True
     )
@@ -144,9 +127,6 @@ with col2:
             st.error("Invalid credentials")
 
     st.markdown("</div>", unsafe_allow_html=True)
-
-# ✅ Close content wrapper
-st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<br>")
 st.caption("⚡ Smart Energy Monitoring System | AI Powered")
