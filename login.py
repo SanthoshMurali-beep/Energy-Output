@@ -7,12 +7,11 @@ st.set_page_config(page_title="Login", layout="centered")
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# 🎯 Redirect if already logged in
 if st.session_state["logged_in"]:
     st.switch_page("app.py")
     st.stop()
 
-# 🔥 FUNCTION: Background + Strong Glass UI
+# 🔥 Background + FULL GLASS AREA
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
@@ -29,53 +28,55 @@ def add_bg_from_local(image_file):
             background-repeat: no-repeat;
         }}
 
-        /* 🔮 MAIN GLASS CARD (STRONG BLUR) */
-        .login-box {{
-            background: rgba(30, 60, 120, 0.5);  /* almost solid */
+        /* 🔥 FULL GLASS AREA (THIS IS THE KEY) */
+        .glass-area {{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
 
-            backdrop-filter: blur(55px) saturate(180%);
-            -webkit-backdrop-filter: blur(55px) saturate(180%);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+
+            background: rgba(20, 40, 80, 0.35);
+
+            z-index: -1;
+        }}
+
+        /* 🔮 LOGIN CARD */
+        .login-box {{
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
 
             padding: 45px;
-            border-radius: 22px;
+            border-radius: 20px;
 
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            border: 1px solid rgba(255,255,255,0.3);
 
-            box-shadow: 
-                0 12px 45px rgba(0,0,0,0.45),
-                inset 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
 
             color: white;
         }}
 
-        /* ✨ INPUT FIELDS */
+        /* ✨ INPUTS */
         .stTextInput > div > div > input {{
-            background: rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(20px);
 
             border: 1px solid rgba(255,255,255,0.5);
             border-radius: 12px;
 
-            padding: 12px;
-            color: #ffffff;
-            font-weight: 500;
+            color: white;
         }}
 
-        /* ✨ INPUT FOCUS */
-        .stTextInput > div > div > input:focus {{
-            outline: none;
-            border: 1px solid rgba(255,255,255,0.7);
-            box-shadow: 
-                0 0 0 2px rgba(255,255,255,0.25);
-        }}
-
-        /* 👁 Placeholder */
         .stTextInput input::placeholder {{
             color: rgba(255,255,255,0.9);
         }}
 
-        /* fix password icon bg */
         .stTextInput div[data-baseweb="input"] {{
             background: transparent;
         }}
@@ -83,17 +84,15 @@ def add_bg_from_local(image_file):
         /* 🚀 BUTTON */
         .stButton button {{
             background: rgba(255,255,255,0.25);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
 
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 12px;
 
             color: white;
             font-weight: 600;
-            height: 3em;
-            width: 100%;
 
-            transition: 0.3s ease;
+            transition: 0.3s;
         }}
 
         .stButton button:hover {{
@@ -102,17 +101,19 @@ def add_bg_from_local(image_file):
         }}
 
         </style>
+
+        <div class="glass-area"></div>
         """,
         unsafe_allow_html=True
     )
 
-# 📸 Add background
+# 📸 Apply background
 add_bg_from_local("background.jpg")
 
 # 🧾 Layout
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([1, 2, 1])
+col1, col2, col3 = st.columns([1,2,1])
 
 with col2:
     st.markdown('<div class="login-box">', unsafe_allow_html=True)
@@ -123,11 +124,8 @@ with col2:
     username = st.text_input("👤 Username", placeholder="Enter your username")
     password = st.text_input("🔑 Password", type="password", placeholder="Enter your password")
 
-    VALID_USERNAME = "admin"
-    VALID_PASSWORD = "1234"
-
     if st.button("🚀 Sign in"):
-        if username == VALID_USERNAME and password == VALID_PASSWORD:
+        if username == "admin" and password == "1234":
             st.session_state["logged_in"] = True
             st.success("Login successful!")
             st.switch_page("app.py")
@@ -136,5 +134,5 @@ with col2:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<br>")
 st.caption("⚡ Smart Energy Monitoring System | AI Powered")
