@@ -5,7 +5,7 @@ import numpy as np
 # 🔷 PAGE CONFIG
 st.set_page_config(page_title="Smart Energy AI", layout="wide")
 
-# 🎨 DARK PREMIUM THEME
+# 🎨 DARK UI
 st.markdown("""
 <style>
 body {
@@ -17,37 +17,39 @@ body {
     padding: 15px;
     border-radius: 10px;
 }
-.block-container {
-    padding-top: 2rem;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # 🔷 HEADER
 st.title("⚡ AI Smart Energy Command Center")
-st.markdown("### 🟣 Intelligent | Scalable | Social Impact Enabled")
-
 st.markdown("---")
 
 # 🔷 SIDEBAR
-st.sidebar.title("⚙️ Control Panel")
-uploaded_file = st.sidebar.file_uploader("Upload Dataset", type=["csv", "xlsx"])
+st.sidebar.title("📂 Upload Dataset")
 
-# DATA LOAD
+uploaded_file = st.sidebar.file_uploader(
+    "Upload Dataset", type=["csv", "xlsx"]
+)
+
+# 🔷 DATA LOADING
 if uploaded_file is not None:
+
     if uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
-    else:
+
+    elif uploaded_file.name.endswith(".xlsx"):
         df = pd.read_excel(uploaded_file, engine="openpyxl")
+
 else:
     st.warning("Upload dataset to continue")
     st.stop()
 
+# ✅ COLUMN CHECK
 if 'MW' not in df.columns:
     st.error("Dataset must contain 'MW' column")
     st.stop()
 
-# 🔁 SIMULATED LIVE
+# 🔁 SIMULATED LIVE DATA
 new_row = df.iloc[-1].copy()
 new_row['MW'] += np.random.uniform(-0.5, 0.5)
 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
@@ -60,7 +62,7 @@ df['T3'] = df['MW'] * 0.15
 df['T4'] = df['MW'] * 0.20
 df['T5'] = df['MW'] * 0.20
 
-# 🔷 RISK
+# 🔷 RISK FUNCTION
 def check_risk(x):
     if x > 1.0:
         return "CRITICAL"
@@ -72,110 +74,96 @@ def check_risk(x):
 for t in ['T1','T2','T3','T4','T5']:
     df[t + '_status'] = df[t].apply(check_risk)
 
-# 🔷 METRICS (CARD STYLE)
-st.markdown("## 📊 System Overview")
+# 🔷 METRICS
+st.subheader("📊 System Overview")
 
 col1, col2, col3 = st.columns(3)
-col1.metric("⚡ Avg Load", round(df['MW'].mean(), 2))
-col2.metric("🔺 Peak Load", round(df['MW'].max(), 2))
-col3.metric("🔻 Min Load", round(df['MW'].min(), 2))
+col1.metric("Avg Load", round(df['MW'].mean(), 2))
+col2.metric("Max Load", round(df['MW'].max(), 2))
+col3.metric("Min Load", round(df['MW'].min(), 2))
 
 st.markdown("---")
 
 # 🔷 GRAPH
-st.markdown("## 📈 Live Energy Trend")
+st.subheader("📈 Energy Trend")
 st.line_chart(df['MW'])
 
 st.markdown("---")
 
-# 🔷 ALERT PANEL
-st.markdown("## 🚨 System Alerts")
+# 🔷 ALERTS
+st.subheader("🚨 Alerts")
 
 critical_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "CRITICAL").sum().sum()
 warning_count = (df[[t+'_status' for t in ['T1','T2','T3','T4','T5']]] == "WARNING").sum().sum()
 
 if critical_count > 5:
-    st.error("🚨 HIGH RISK GRID CONDITION")
-    st.markdown("👩 Impact: Critical care zones like hospitals & maternity units may be affected")
+    st.error("HIGH RISK GRID")
 elif warning_count > 5:
-    st.warning("⚡ MODERATE GRID STRESS")
+    st.warning("MODERATE RISK")
 else:
-    st.success("✅ SYSTEM STABLE")
+    st.success("SYSTEM STABLE")
 
 st.markdown("---")
 
-# 🔷 TRANSFORMER DASHBOARD
-st.markdown("## ⚡ Transformer Intelligence")
+# 🔷 TRANSFORMERS
+st.subheader("⚡ Transformer Data")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Load Distribution")
     st.dataframe(df[['T1','T2','T3','T4','T5']])
 
 with col2:
-    st.subheader("Risk Status")
     st.dataframe(df[['T1_status','T2_status','T3_status','T4_status','T5_status']])
 
 st.markdown("---")
 
 # 🔷 AI INSIGHTS
-st.markdown("## 🧠 AI Insights")
+st.subheader("🧠 AI Insights")
 
 avg = df['MW'].mean()
 maxv = df['MW'].max()
 
 if maxv > 4.5:
-    st.error("🔥 Extreme Demand (Heatwave Scenario)")
+    st.error("Heatwave Condition")
 elif avg > 3.5:
-    st.warning("⚡ Peak Demand Pattern")
+    st.warning("Peak Demand")
 else:
-    st.success("✅ Normal Usage Pattern")
+    st.success("Normal Condition")
 
 # 🔷 ANOMALY
 spikes = df[df['MW'] > (avg + 2*df['MW'].std())]
 
 if not spikes.empty:
-    st.warning(f"⚠️ {len(spikes)} anomalies detected")
+    st.warning(f"{len(spikes)} anomalies detected")
 else:
-    st.success("No anomalies detected")
+    st.success("No anomalies")
 
 st.markdown("---")
 
 # 🔷 DECISION SUPPORT
-st.markdown("## 🧠 Smart Decision Support")
+st.subheader("🧠 Decision Support")
 
 if critical_count > 0:
-    st.write("✔ Immediate load balancing required")
-    st.write("✔ Emergency response recommended")
-    st.write("✔ Ensure uninterrupted supply to critical infrastructure")
+    st.write("✔ Reduce load immediately")
+    st.write("✔ Maintenance required")
 elif warning_count > 0:
     st.write("✔ Monitor closely")
 else:
-    st.write("✔ System operating normally")
-
-st.markdown("---")
-
-# 🔷 SOCIAL IMPACT
-st.markdown("## 👩 Social Impact Layer")
-
-st.info("""
-This system enhances energy reliability for critical infrastructure such as hospitals, 
-women healthcare facilities, and maternity wards, ensuring safety during grid stress.
-""")
+    st.write("✔ System stable")
 
 st.markdown("---")
 
 # 🔷 CONTROL CENTER
-st.markdown("## 🏙️ Smart Grid Control Center")
+st.subheader("🏙️ Grid Status")
 
 if critical_count > 0:
-    st.error("GRID STATUS: HIGH RISK")
+    st.error("HIGH RISK")
 elif warning_count > 0:
-    st.warning("GRID STATUS: MEDIUM RISK")
+    st.warning("MEDIUM RISK")
 else:
-    st.success("GRID STATUS: STABLE")
+    st.success("LOW RISK")
 
 st.markdown("---")
 
-st.caption("🚀 AI Smart Energy Platform | Government-Ready Infrastructure Monitoring System")
+st.caption("🚀 AI Smart Energy Monitoring System")
