@@ -11,7 +11,7 @@ if st.session_state["logged_in"]:
     st.switch_page("app.py")
     st.stop()
 
-# 🔥 Background + TRUE blur layer
+# 🔥 Background + Proper Blur Layer
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
@@ -26,9 +26,11 @@ def add_bg_from_local(image_file):
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            position: relative;
+            z-index: 0;
         }}
 
-        /* 🔥 FULL SCREEN BLUR LAYER (FIXED) */
+        /* 🔥 BLUR LAYER (BETWEEN BG & CONTENT) */
         .blur-layer {{
             position: fixed;
             top: 0;
@@ -36,50 +38,50 @@ def add_bg_from_local(image_file):
             width: 100%;
             height: 100%;
 
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
 
-            background: rgba(20, 40, 80, 0.35);
+            background: rgba(20, 40, 80, 0.25);
 
-            z-index: 1; /* IMPORTANT */
+            z-index: 1;
         }}
 
-        /* 🧾 Content wrapper ABOVE blur */
+        /* 🧾 CONTENT ABOVE BLUR */
         .content {{
             position: relative;
             z-index: 2;
         }}
 
-        /* 🔮 LOGIN CARD */
+        /* 🔮 LOGIN BOX */
         .login-box {{
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(25px);
 
             padding: 45px;
             border-radius: 20px;
 
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.25);
 
             box-shadow:
                 0 10px 40px rgba(0,0,0,0.4),
-                inset 0 1px 0 rgba(255,255,255,0.3);
+                inset 0 1px 0 rgba(255,255,255,0.2);
 
             color: white;
         }}
 
-        /* ✨ INPUTS */
+        /* ✨ INPUT FIELDS */
         .stTextInput > div > div > input {{
-            background: rgba(255,255,255,0.3);
-            backdrop-filter: blur(20px);
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(15px);
 
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.4);
             border-radius: 12px;
 
             color: white;
         }}
 
         .stTextInput input::placeholder {{
-            color: rgba(255,255,255,0.9);
+            color: rgba(255,255,255,0.85);
         }}
 
         .stTextInput div[data-baseweb="input"] {{
@@ -110,7 +112,7 @@ def add_bg_from_local(image_file):
         <!-- ✅ BLUR LAYER -->
         <div class="blur-layer"></div>
 
-        <!-- ✅ CONTENT WRAPPER -->
+        <!-- ✅ CONTENT -->
         <div class="content">
         """,
         unsafe_allow_html=True
@@ -119,7 +121,7 @@ def add_bg_from_local(image_file):
 # 📸 Apply background
 add_bg_from_local("background.jpg")
 
-# 🧾 Layout
+# 🧾 Layout spacing
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([1,2,1])
@@ -143,7 +145,7 @@ with col2:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# close content div
+# ✅ Close content wrapper
 st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<br>")
